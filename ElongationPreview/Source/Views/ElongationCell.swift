@@ -127,7 +127,12 @@ extension ElongationCell {
         dimmingView = UIView()
         contentView.addSubview(dimmingView)
         dimmingView.alpha = 0
-        dimmingView.backgroundColor = UIColor.black
+        if appearance.enableDimmedView {
+            dimmingView.backgroundColor = UIColor.black
+        }
+        else {
+            dimmingView.backgroundColor = UIColor.clear
+        }
         dimmingView.frame = bounds
         dimmingView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
@@ -215,7 +220,7 @@ extension ElongationCell {
     // MARK: Private
 
     fileprivate func updateCellState() {
-        let backColor: UIColor = isExpanded ? .black : .clear
+        let backColor: UIColor = isExpanded ? appearance.cellPreviewBackgroundColor : .red
         backgroundColor = backColor
         contentView.backgroundColor = backColor
 

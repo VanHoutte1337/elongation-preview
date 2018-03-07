@@ -81,6 +81,7 @@ extension ElongationTransition {
     fileprivate func present(using context: UIViewControllerContextTransitioning) {
         let duration = transitionDuration(using: context)
         let containerView = context.containerView
+        containerView.backgroundColor = .white
         let root = self.root(from: context) // ElongationViewController
         let detail = self.detail(from: context) // ElongationDetailViewController
         let rootView = context.view(forKey: rootViewKey)
@@ -186,6 +187,7 @@ extension ElongationTransition {
         let root = self.root(from: context)
         let detail = self.detail(from: context)
         let containerView = context.containerView
+        containerView.backgroundColor = appearance.containerViewBackgroundColor
         let duration = transitionDuration(using: context)
 
         guard
