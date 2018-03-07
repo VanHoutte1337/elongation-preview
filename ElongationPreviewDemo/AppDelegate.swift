@@ -17,13 +17,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
         // Add dark view behind the status bar
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
-            let view = UIView(frame: UIApplication.shared.statusBarFrame)
-            view.backgroundColor = UIColor.black
-            view.alpha = 0.4
-            self.window?.addSubview(view)
-            self.window?.bringSubview(toFront: view)
-        }
+//        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
+//            let view = UIView(frame: UIApplication.shared.statusBarFrame)
+//            view.backgroundColor = UIColor.black
+//            view.alpha = 0.4
+//            self.window?.addSubview(view)
+//            self.window?.bringSubview(toFront: view)
+//        }
 
         // Customize ElongationConfig
         var config = ElongationConfig()
@@ -34,6 +34,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         config.parallaxFactor = 100
         config.separatorHeight = 0.5
         config.separatorColor = UIColor.white
+        
+        config.enableDimmedView = false
+        config.containerViewBackgroundColor = UIColor.white
+        config.cellPreviewBackgroundColor = .clear
 
         // Durations for presenting/dismissing detail screen
         config.detailPresentingDuration = 0.4

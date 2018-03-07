@@ -105,4 +105,14 @@ public struct ElongationConfig {
     /// Duration of `detail` view controller dismissing animation
     /// Default value: `0.4`
     public var detailDismissingDuration: TimeInterval = 0.4
+    
+    // Added by Mathias Van Houtte
+    
+    /// Should we add a dimmed view as background
+    public var enableDimmedView: Bool = true
+    
+    /// color for the background when collapsing detail view
+    public var containerViewBackgroundColor: UIColor = .clear
+    
+    public var cellPreviewBackgroundColor: UIColor = .black
 }
