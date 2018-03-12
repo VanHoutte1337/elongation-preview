@@ -206,26 +206,26 @@ extension ElongationTransition {
         expandedCell.hideSeparator(false, animated: true)
         expandedCell.topView.setNeedsLayout()
 
-        UIGraphicsBeginImageContextWithOptions(view.bounds.size, true, 0)
+        UIGraphicsBeginImageContextWithOptions(view.bounds.size, false, 0)
         view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
         let image = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
 
         let yOffset = detailTableView.contentOffset.y
         let topViewSize = CGSize(width: view.bounds.width, height: appearance.topViewHeight)
-        UIGraphicsBeginImageContextWithOptions(topViewSize, true, 0)
+        UIGraphicsBeginImageContextWithOptions(topViewSize, false, 0)
         header.topView.drawHierarchy(in: CGRect(origin: CGPoint.zero, size: topViewSize), afterScreenUpdates: true)
         let topViewImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
         let bottomViewSize = CGSize(width: view.bounds.width, height: appearance.bottomViewHeight)
-        UIGraphicsBeginImageContextWithOptions(bottomViewSize, true, 0)
+        UIGraphicsBeginImageContextWithOptions(bottomViewSize, false, 0)
         header.bottomView.drawHierarchy(in: CGRect(origin: CGPoint.zero, size: bottomViewSize), afterScreenUpdates: true)
         let bottomViewImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
         let size = CGSize(width: view.bounds.width, height: view.bounds.height - header.frame.height)
-        UIGraphicsBeginImageContextWithOptions(size, true, 0)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
         image.draw(at: CGPoint(x: 0, y: -header.frame.height))
         let tableViewImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
@@ -251,12 +251,12 @@ extension ElongationTransition {
 
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
             root.view?.alpha = 1
-            tableViewSnapshotView.alpha = 0
+            tableViewSnapshotView.alpha = 1
 
             // Animate views to collapsed cell size
             let collapsedFrame = CGRect(x: 0, y: cellFrame.origin.y, width: header.frame.width, height: cellFrame.height)
             topViewImageView.frame = collapsedFrame
-            bottomViewImageView.frame = collapsedFrame
+            bottomViewImageView.frame.origin = CGPoint(x: 0, y: cellFrame.origin.y)
             tableViewSnapshotView.frame = collapsedFrame
             expandedCell.contentView.layoutIfNeeded()
         }, completion: { completed in
