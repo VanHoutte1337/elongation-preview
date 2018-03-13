@@ -212,9 +212,10 @@ extension ElongationTransition {
         UIGraphicsEndImageContext()
 
         let yOffset = detailTableView.contentOffset.y
-        let topViewSize = CGSize(width: view.bounds.width, height: appearance.topViewHeight)
-        UIGraphicsBeginImageContextWithOptions(topViewSize, false, 0)
-        header.topView.drawHierarchy(in: CGRect(origin: CGPoint.zero, size: topViewSize), afterScreenUpdates: true)
+        let topViewSize = CGRect(origin: CGPoint.zero, size: CGSize(width: view.bounds.width, height: appearance.topViewHeight))
+        // add the view height - header height (tableViewHeight) so that we can add it to the subview
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: view.bounds.width, height: topViewSize.height + (view.bounds.height - header.frame.height)), false, 0)
+        header.topView.drawHierarchy(in: CGRect(origin: CGPoint.zero, size: CGSize(width: view.bounds.width, height: topViewSize.height)), afterScreenUpdates: true)
         let topViewImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
@@ -236,8 +237,19 @@ extension ElongationTransition {
 
         // Add `header` and `tableView` snapshot to temporary container
         containerView.addSubview(bottomViewImageView)
-        containerView.addSubview(tableViewSnapshotView)
         containerView.addSubview(topViewImageView)
+        
+        // we create a subcontainer, that will take the space below the topviewimageview. we will than add the tableViewSnapshotView to it
+        let subContainerTopViewImageView = UIView(frame: CGRect(x: 0, y: topViewSize.height, width: view.bounds.width, height: tableViewSnapshotView.frame.height + 800))
+        // we set the clipstobounds to true so that when the tableViewSnapshotView slides to the top, it will not be shown out of the bounds
+        // which creates a upward sliding animation, instead of scaling the image
+        subContainerTopViewImageView.clipsToBounds = true
+        subContainerTopViewImageView.addSubview(tableViewSnapshotView)
+        
+        // add tableview to the top view, so we can have a slide in animation
+        topViewImageView.addSubview(subContainerTopViewImageView)
+        
+        topViewImageView.clipsToBounds = true
 
         // Prepare view to dismissing
         let rect = rootTableView.rectForRow(at: path)
@@ -245,9 +257,9 @@ extension ElongationTransition {
         detailTableView.alpha = 0
 
         // Place views at their start points.
-        topViewImageView.frame = CGRect(x: 0, y: -yOffset, width: topViewSize.width, height: topViewSize.height)
+        topViewImageView.frame = CGRect(x: 0, y: -yOffset, width: topViewSize.width, height: topViewSize.height + (view.bounds.height - header.frame.height))
         bottomViewImageView.frame = CGRect(x: 0, y: -yOffset + topViewSize.height, width: view.bounds.width, height: bottomViewSize.height)
-        tableViewSnapshotView.frame = CGRect(x: 0, y: header.frame.maxY - yOffset, width: view.bounds.width, height: tableViewSnapshotView.frame.height)
+        tableViewSnapshotView.frame = CGRect(x: 0, y: bottomViewSize.height, width: view.bounds.width, height: tableViewSnapshotView.frame.height)
 
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
             root.view?.alpha = 1
@@ -255,9 +267,9 @@ extension ElongationTransition {
 
             // Animate views to collapsed cell size
             let collapsedFrame = CGRect(x: 0, y: cellFrame.origin.y, width: header.frame.width, height: cellFrame.height)
-            topViewImageView.frame = collapsedFrame
-            bottomViewImageView.frame.origin = CGPoint(x: 0, y: cellFrame.origin.y)
-            tableViewSnapshotView.frame = collapsedFrame
+            topViewImageView.frame.origin = CGPoint(x: 0, y: cellFrame.origin.y)
+            bottomViewImageView.frame = collapsedFrame
+            tableViewSnapshotView.frame.origin = CGPoint(x: 0, y: -tableViewSnapshotView.frame.height)
             expandedCell.contentView.layoutIfNeeded()
         }, completion: { completed in
             root.state = .normal
