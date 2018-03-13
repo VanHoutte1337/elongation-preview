@@ -32,8 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         config.bottomViewHeight = 170
         config.bottomViewOffset = 20
         config.parallaxFactor = 100
-        config.separatorHeight = 0.5
-        config.separatorColor = UIColor.white
+//        config.separatorHeight = 0.5
+//        config.separatorColor = UIColor.white
         
         config.enableDimmedView = false
         config.containerViewBackgroundColor = .clear
@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Durations for presenting/dismissing detail screen
         config.detailPresentingDuration = 0.4
-        config.detailDismissingDuration = 2.0
+        config.detailDismissingDuration = 0.4
 
         // Customize behaviour
         config.headerTouchAction = .collpaseOnBoth
