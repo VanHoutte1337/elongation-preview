@@ -221,13 +221,6 @@ extension ElongationTransition {
         let topViewImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         let topViewImageView = UIImageView(image: topViewImage)
-
-        // add the view height - header height (tableViewHeight) so that we can add it to the subview
-        //        UIGraphicsBeginImageContextWithOptions(CGSize(width: view.bounds.width, height: topViewSize.height + (view.bounds.height - header.frame.height)), false, 0)
-        //        UIGraphicsBeginImageContextWithOptions(CGSize(width: view.bounds.width, height: containerView.frame.height + yOffset), false, 0)
-        
-
-        
         
         // calculate the rectangle for the bottom view
         let bottomViewSize = CGSize(width: view.bounds.width, height: appearance.bottomViewHeight)
@@ -245,50 +238,45 @@ extension ElongationTransition {
         UIGraphicsEndImageContext()
         let tableViewSnapshotView = UIImageView(image: tableViewImage)
         
+        // we create a invisible subcontainer that has the size of the tableview and will contain it
+        let subContainerView = UIView(frame: tableViewSnapshotView.frame)
+        subContainerView.addSubview(tableViewSnapshotView)
+        // this allows us to clip everything that moves over the bounds
+        // this allows us to move the tableview top the top, but it wil look like it disappears in the original cell
+        subContainerView.clipsToBounds = true
+        // we need to set the Y coordinate equal to the top offset + the height of the top view + the height of the bottom view
+        subContainerView.frame.origin.y = -yOffset + topViewSize.height + bottomViewSize.height
         
-
         // Add `header` and `tableView` snapshot to temporary container
-        containerView.addSubview(tableViewSnapshotView)
+        containerView.addSubview(subContainerView)
         containerView.addSubview(bottomViewImageView)
         containerView.addSubview(topViewImageView)
-        
-//        // we create a subcontainer, that will take the space below the topviewimageview. we will than add the tableViewSnapshotView to it
-//        let subContainerTopViewImageView = UIView(frame: CGRect(x: 0, y: topViewSize.height, width: view.bounds.width, height: tableViewSnapshotView.frame.height))
-//        // we set the clipstobounds to true so that when the tableViewSnapshotView slides to the top, it will not be shown out of the bounds
-//        // which creates a upward sliding animation, instead of scaling the image
-//        subContainerTopViewImageView.clipsToBounds = true
-//        subContainerTopViewImageView.addSubview(tableViewSnapshotView)
-        
-        // add tableview to the top view, so we can have a slide in animation
-//        topViewImageView.addSubview(subContainerTopViewImageView)
-        
-        topViewImageView.clipsToBounds = true
 
         // Prepare view to dismissing
         let rect = rootTableView.rectForRow(at: path)
         let cellFrame = rootTableView.convert(rect, to: containerView)
+        // hide the detail view before we start the animation
         detailTableView.alpha = 0
+        // we set alpha of the root view controller back to 1 before we start the animation
+        root.view?.alpha = 1
 
-        // Place views at their start points.
-//        topViewImageView.frame = CGRect(x: 0, y: -yOffset, width: topViewSize.width, height: topViewSize.height + (view.bounds.height - header.frame.height))
-        
         // the starting point of the topview is the offset value
         topViewImageView.frame.origin.y = -yOffset
         // the startingpoint is the yoffset value + height of the topview
         bottomViewImageView.frame = CGRect(x: 0, y: topViewImageView.frame.origin.y + topViewSize.height, width: view.bounds.width, height: bottomViewSize.height)
-        //
-        tableViewSnapshotView.frame = CGRect(x: 0, y: bottomViewImageView.frame.origin.y + bottomViewSize.height, width: view.bounds.width, height: detailViewsize.height)
-
+        // NOTE: no need to change the frame position of the tableview because we want to use the same location
+        
         // we will change the frame of the subviews so that they collapse
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
-            root.view?.alpha = 1
-            tableViewSnapshotView.alpha = 1
-
             // Animate views to collapsed cell size
             let collapsedFrame = CGRect(x: 0, y: cellFrame.origin.y, width: header.frame.width, height: cellFrame.height)
             topViewImageView.frame = collapsedFrame
             bottomViewImageView.frame = collapsedFrame
-            tableViewSnapshotView.frame = collapsedFrame
+            // we will adjust the y coordinate to a negative table view height, this will move
+            // the table top the original cell and above
+            tableViewSnapshotView.frame.origin.y = -tableViewSnapshotView.frame.height
+            // the y coordinate should be at the bottom of the original cell
+            subContainerView.frame.origin.y = cellFrame.origin.y + cellFrame.height
             expandedCell.contentView.layoutIfNeeded()
         }, completion: { completed in
             root.state = .normal
