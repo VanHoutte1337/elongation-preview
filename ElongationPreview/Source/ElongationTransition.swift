@@ -81,7 +81,7 @@ extension ElongationTransition {
     fileprivate func present(using context: UIViewControllerContextTransitioning) {
         let duration = transitionDuration(using: context)
         let containerView = context.containerView
-        containerView.backgroundColor = .white
+        containerView.backgroundColor = appearance.containerViewBackgroundColor
         let root = self.root(from: context) // ElongationViewController
         let detail = self.detail(from: context) // ElongationDetailViewController
         let rootView = context.view(forKey: rootViewKey)
@@ -154,10 +154,10 @@ extension ElongationTransition {
         headerSnapshotView.frame = CGRect(x: 0, y: cellFrame.minY - statusBarHeight, width: cellFrame.width, height: height)
         tableViewSnapshotView.frame = CGRect(x: 0, y: detailViewFinalFrame.maxY, width: cellsSize.width, height: cellsSize.height)
         tempView.frame = CGRect(x: 0, y: cellFrame.maxY - statusBarHeight, width: detailViewFinalFrame.width, height: 0)
+        root.view?.alpha = 1
 
         // Animate to new state
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
-            root.view?.alpha = 0
 
             header.scalableView.transform = .identity // reset scale to 1.0
             header.contentView.frame = CGRect(x: 0, y: 0, width: cellFrame.width, height: cellFrame.height + self.appearance.bottomViewOffset)
