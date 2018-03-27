@@ -13,14 +13,14 @@ final class DetailViewController: ElongationDetailViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.backgroundColor = UIColor.clear
+        tableView.backgroundColor = UIColor.white
         tableView.separatorStyle = .none
         tableView.registerNib(GridViewCell.self)
 //        tableView.registerNib(DemoElongationCell.self)
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        return 1
+        return 0
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {

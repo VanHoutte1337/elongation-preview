@@ -38,7 +38,7 @@ final class ViewController: ElongationViewController {
 private extension ViewController {
 
     func setup() {
-        tableView.backgroundColor = UIColor.white
+//        tableView.backgroundColor = UIColor.white
         tableView.registerNib(DemoElongationCell.self)
     }
 }

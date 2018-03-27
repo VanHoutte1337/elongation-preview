@@ -87,7 +87,7 @@ extension ElongationTransition {
         let rootView = context.view(forKey: rootViewKey)
         let detailView = context.view(forKey: detailViewKey)
 
-        let detailViewFinalFrame = context.finalFrame(for: detail) // Final frame for presenting view controller
+        var detailViewFinalFrame = context.finalFrame(for: detail) // Final frame for presenting view controller
         let statusBarHeight: CGFloat
         if #available(iOS 11, *) {
             statusBarHeight = UIApplication.shared.statusBarFrame.height
@@ -104,7 +104,7 @@ extension ElongationTransition {
 
         // Determine are `root` view is in expanded state.
         // We need to know that because animation depends on the state.
-        let isExpanded = root.state == .expanded
+//        let isExpanded = root.state == .expanded
 
         // Create `ElongationHeader` from `ElongationCell` and set it as `headerView` to `detail` view controller
         let header = cell.elongationHeader
@@ -115,8 +115,9 @@ extension ElongationTransition {
         let cellFrame = rootTableView.convert(rect, to: containerView)
 
         // Whole view snapshot
+//        UIGraphicsBeginImageContextWithOptions(view.bounds.size, false, 0)
         UIGraphicsBeginImageContextWithOptions(view.bounds.size, false, 0)
-        view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+        view.drawHierarchy(in: CGRect(x: 0, y: -statusBarHeight, width: view.bounds.width, height: view.bounds.height), afterScreenUpdates: true)
         let fullImage = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
 
@@ -129,7 +130,7 @@ extension ElongationTransition {
         // TableView snapshot
         let cellsSize = CGSize(width: view.frame.width, height: view.frame.height - header.frame.height)
         UIGraphicsBeginImageContextWithOptions(cellsSize, true, 0)
-        fullImage.draw(at: CGPoint(x: 0, y: -header.frame.height - statusBarHeight))
+        fullImage.draw(at: CGPoint(x: 0, y: -header.frame.height))
         let tableSnapshot = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
 
@@ -138,7 +139,9 @@ extension ElongationTransition {
 
         let tempView = UIView()
         tempView.backgroundColor = header.bottomView.backgroundColor
-
+        
+        view.frame.origin.y = view.frame.origin.y - statusBarHeight
+        
         // Add coming `view` to temporary `containerView`
         containerView.addSubview(view)
         containerView.addSubview(tempView)
@@ -148,13 +151,17 @@ extension ElongationTransition {
         header.bottomViewTopConstraint.constant = appearance.topViewHeight
         header.bottomView.setNeedsLayout()
 
-        let height = isExpanded ? cellFrame.height : appearance.topViewHeight + appearance.bottomViewHeight
-
-        view.frame = CGRect(x: 0, y: cellFrame.minY - statusBarHeight, width: detailViewFinalFrame.width, height: cellFrame.height)
-        headerSnapshotView.frame = CGRect(x: 0, y: cellFrame.minY - statusBarHeight, width: cellFrame.width, height: height)
+//        var height = isExpanded ? cellFrame.height : appearance.topViewHeight + appearance.bottomViewHeight
+//        height = cellFrame.height
+        
+        view.frame = CGRect(x: 0, y: cellFrame.minY, width: detailViewFinalFrame.width, height: cellFrame.height)
+        tableViewSnapshotView.backgroundColor = .red
         tableViewSnapshotView.frame = CGRect(x: 0, y: detailViewFinalFrame.maxY, width: cellsSize.width, height: cellsSize.height)
         tempView.frame = CGRect(x: 0, y: cellFrame.maxY - statusBarHeight, width: detailViewFinalFrame.width, height: 0)
         root.view?.alpha = 1
+        
+        // enable this line if you want to hide the bar between the table and the statusbar
+//        detailViewFinalFrame.origin.y = detailViewFinalFrame.origin.y + statusBarHeight
 
         // Animate to new state
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
@@ -164,15 +171,15 @@ extension ElongationTransition {
 
             header.contentView.setNeedsLayout()
             header.contentView.layoutIfNeeded()
-
+            
             view.frame = detailViewFinalFrame
-            headerSnapshotView.frame = CGRect(x: 0, y: 0, width: cellFrame.width, height: height)
+//            headerSnapshotView.frame = CGRect(x: 0, y: 0, width: cellFrame.width, height: height)
             tableViewSnapshotView.frame = CGRect(x: 0, y: header.frame.height + statusBarHeight, width: detailViewFinalFrame.width, height: cellsSize.height)
             tempView.frame = CGRect(x: 0, y: headerSnapshotView.frame.maxY, width: detailViewFinalFrame.width, height: detailViewFinalFrame.height)
         }) { completed in
             rootView?.removeFromSuperview()
             tempView.removeFromSuperview()
-            headerSnapshotView.removeFromSuperview()
+//            headerSnapshotView.removeFromSuperview()
             tableViewSnapshotView.removeFromSuperview()
             context.completeTransition(completed)
         }
@@ -211,8 +218,13 @@ extension ElongationTransition {
         let image = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
         
-        // the offset of the table compared to the top point of the view
-        let yOffset = detailTableView.contentOffset.y
+        // the offset is equal to the statusbarframe height
+        let yOffset: CGFloat
+        if #available(iOS 11, *) {
+            yOffset = UIApplication.shared.statusBarFrame.height
+        } else {
+            yOffset = 0
+        }
         
         // calculate the rectangle for the top view
         let topViewSize = CGRect(origin: CGPoint.zero, size: CGSize(width: view.bounds.width, height: appearance.topViewHeight))
@@ -245,7 +257,7 @@ extension ElongationTransition {
         // this allows us to move the tableview top the top, but it wil look like it disappears in the original cell
         subContainerView.clipsToBounds = true
         // we need to set the Y coordinate equal to the top offset + the height of the top view + the height of the bottom view
-        subContainerView.frame.origin.y = -yOffset + topViewSize.height + bottomViewSize.height
+        subContainerView.frame.origin.y = yOffset + topViewSize.height + bottomViewSize.height
         
         // Add `header` and `tableView` snapshot to temporary container
         containerView.addSubview(subContainerView)
@@ -261,7 +273,7 @@ extension ElongationTransition {
         root.view?.alpha = 1
 
         // the starting point of the topview is the offset value
-        topViewImageView.frame.origin.y = -yOffset
+        topViewImageView.frame.origin.y = yOffset
         // the startingpoint is the yoffset value + height of the topview
         bottomViewImageView.frame = CGRect(x: 0, y: topViewImageView.frame.origin.y + topViewSize.height, width: view.bounds.width, height: bottomViewSize.height)
         // NOTE: no need to change the frame position of the tableview because we want to use the same location

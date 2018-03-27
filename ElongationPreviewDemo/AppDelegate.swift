@@ -26,11 +26,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        config.separatorColor = UIColor.white
         
         config.enableDimmedView = false
-        config.containerViewBackgroundColor = .clear
-        config.cellPreviewBackgroundColor = .clear
+//        config.containerViewBackgroundColor = .clear
+//        config.cellPreviewBackgroundColor = .clear
 
         // Durations for presenting/dismissing detail screen
-        config.detailPresentingDuration = 4.0
+        config.detailPresentingDuration = 0.4
         config.detailDismissingDuration = 0.4
 
         // Customize behaviour
