@@ -20,7 +20,7 @@ final class DetailViewController: ElongationDetailViewController {
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        return 0
+        return 2
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
