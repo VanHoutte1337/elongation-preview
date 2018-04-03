@@ -115,7 +115,7 @@ extension ElongationTransition {
         let cellFrame = rootTableView.convert(rect, to: containerView)
 
         // Whole view snapshot
-        UIGraphicsBeginImageContextWithOptions(view.bounds.size, true, 0)
+        UIGraphicsBeginImageContextWithOptions(view.bounds.size, false, 0)
         view.drawHierarchy(in: CGRect(x: 0, y: -statusBarHeight, width: view.bounds.width, height: view.bounds.height), afterScreenUpdates: true)
         let fullImage = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
@@ -128,7 +128,7 @@ extension ElongationTransition {
 
         // TableView snapshot
         let cellsSize = CGSize(width: view.frame.width, height: view.frame.height - header.frame.height)
-        UIGraphicsBeginImageContextWithOptions(cellsSize, true, 0)
+        UIGraphicsBeginImageContextWithOptions(cellsSize, false, 0)
         fullImage.draw(at: CGPoint(x: 0, y: -header.frame.height))
         let tableSnapshot = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
@@ -145,11 +145,11 @@ extension ElongationTransition {
         containerView.addSubview(view)
         containerView.addSubview(tempView)
         
-        let tempView2 = UIView(frame: CGRect(x: 0, y: cellFrame.minY + cellFrame.height, width: cellsSize.width, height: detailViewFinalFrame.height))
+        let tempView2 = UIView(frame: CGRect(x: 0, y: cellFrame.origin.y + cellFrame.height, width: cellsSize.width, height: detailViewFinalFrame.height))
         tempView2.clipsToBounds = true
         tempView2.addSubview(tableViewSnapshotView)
         containerView.addSubview(tempView2)
-
+        
         // Update `bottomView`s top constraint and invalidate layout
         header.bottomViewTopConstraint.constant = appearance.topViewHeight
         header.bottomView.setNeedsLayout()
@@ -158,7 +158,6 @@ extension ElongationTransition {
 //        height = cellFrame.height
         
         view.frame = CGRect(x: 0, y: cellFrame.minY, width: detailViewFinalFrame.width, height: cellFrame.height)
-//        tableViewSnapshotView.frame = CGRect(x: 0, y: detailViewFinalFrame.maxY, width: cellsSize.width, height: cellsSize.height)
         tableViewSnapshotView.frame = CGRect(x: 0, y: -tableViewSnapshotView.frame.height, width: cellsSize.width, height: cellsSize.height)
         tempView.frame = CGRect(x: 0, y: cellFrame.maxY, width: detailViewFinalFrame.width, height: 0)
         root.view?.alpha = 1
@@ -176,12 +175,13 @@ extension ElongationTransition {
             header.contentView.layoutIfNeeded()
             
             tableViewSnapshotView.frame = CGRect(x: 0, y: header.frame.height - view.frame.height, width: detailViewFinalFrame.width, height: cellsSize.height)
-            tempView2.frame.origin.y = cellFrame.minY
+            tempView2.frame.origin.y = cellFrame.height + statusBarHeight
             view.frame = detailViewFinalFrame
             tempView.frame = CGRect(x: 0, y: headerSnapshotView.frame.maxY, width: detailViewFinalFrame.width, height: detailViewFinalFrame.height)
         }) { completed in
             rootView?.removeFromSuperview()
             tempView.removeFromSuperview()
+            tempView2.removeFromSuperview()
             tableViewSnapshotView.removeFromSuperview()
             context.completeTransition(completed)
         }
