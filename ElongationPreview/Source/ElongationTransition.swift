@@ -120,8 +120,6 @@ extension ElongationTransition {
         let fullImage = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
 
-//            https://stackoverflow.com/questions/22314424/rendering-uiview-to-image-when-view-draws-outside-its-bounds
-        
         // Header snapshot
         UIGraphicsBeginImageContextWithOptions(header.frame.size, true, 0)
         fullImage.draw(at: CGPoint(x: 0, y: 0))
