@@ -220,7 +220,7 @@ extension ElongationCell {
     // MARK: Private
 
     fileprivate func updateCellState() {
-        let backColor: UIColor = isExpanded ? appearance.cellPreviewBackgroundColor : .red
+        let backColor: UIColor = isExpanded ? appearance.cellPreviewBackgroundColor : .clear
         backgroundColor = backColor
         contentView.backgroundColor = backColor
 
