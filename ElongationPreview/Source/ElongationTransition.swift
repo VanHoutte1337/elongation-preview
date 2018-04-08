@@ -277,7 +277,7 @@ extension ElongationTransition {
         // the starting point of the topview is the offset value
         topViewImageView.frame.origin.y = yOffset
         // the startingpoint is the yoffset value + height of the topview
-        bottomViewImageView.frame = CGRect(x: 0, y: topViewImageView.frame.origin.y + topViewSize.height, width: view.bounds.width, height: bottomViewSize.height)
+        bottomViewImageView.frame = CGRect(x: 0, y: topViewImageView.frame.origin.y + topViewSize.height, width: bottomViewImageView.bounds.width, height: bottomViewSize.height)
         // NOTE: no need to change the frame position of the tableview because we want to use the same location
         
         // we will change the frame of the subviews so that they collapse

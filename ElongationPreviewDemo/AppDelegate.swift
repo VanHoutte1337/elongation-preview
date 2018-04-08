@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Durations for presenting/dismissing detail screen
         config.detailPresentingDuration = 0.4
-        config.detailDismissingDuration = 0.4
+        config.detailDismissingDuration = 4
 
         // Customize behaviour
         config.headerTouchAction = .collpaseOnBoth
